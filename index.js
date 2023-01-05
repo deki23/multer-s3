@@ -1,11 +1,11 @@
-var crypto = require('crypto')
-var stream = require('stream')
-var fileType = require('file-type')
-var htmlCommentRegex = require('html-comment-regex')
-var parallel = require('run-parallel')
-var Upload = require('@aws-sdk/lib-storage').Upload
-var DeleteObjectCommand = require('@aws-sdk/client-s3').DeleteObjectCommand
-var util = require('util')
+const crypto = require('crypto')
+const stream = require('stream')
+const fileType = require('file-type')
+const htmlCommentRegex = require('html-comment-regex')
+const parallel = require('run-parallel')
+const Upload = require('@aws-sdk/lib-storage').Upload
+const DeleteObjectCommand = require('@aws-sdk/client-s3').DeleteObjectCommand
+const util = require('util')
 
 function staticValue (value) {
   return function (req, file, cb) {
@@ -13,22 +13,22 @@ function staticValue (value) {
   }
 }
 
-var defaultAcl = staticValue('private')
-var defaultContentType = staticValue('application/octet-stream')
+const defaultAcl = staticValue('private')
+const defaultContentType = staticValue('application/octet-stream')
 
-var defaultMetadata = staticValue(undefined)
-var defaultCacheControl = staticValue(null)
-var defaultShouldTransform = staticValue(false)
-var defaultTransforms = []
-var defaultContentDisposition = staticValue(null)
-var defaultContentEncoding = staticValue(null)
-var defaultStorageClass = staticValue('STANDARD')
-var defaultSSE = staticValue(null)
-var defaultSSEKMS = staticValue(null)
+const defaultMetadata = staticValue(undefined)
+const defaultCacheControl = staticValue(null)
+const defaultShouldTransform = staticValue(false)
+const defaultTransforms = []
+const defaultContentDisposition = staticValue(null)
+const defaultContentEncoding = staticValue(null)
+const defaultStorageClass = staticValue('STANDARD')
+const defaultSSE = staticValue(null)
+const defaultSSEKMS = staticValue(null)
 
 // Regular expression to detect svg file content, inspired by: https://github.com/sindresorhus/is-svg/blob/master/index.js
 // It is not always possible to check for an end tag if a file is very big. The firstChunk, see below, might not be the entire file.
-var svgRegex = /^\s*(?:<\?xml[^>]*>\s*)?(?:<!doctype svg[^>]*>\s*)?<svg[^>]*>/i
+const svgRegex = /^\s*(?:<\?xml[^>]*>\s*)?(?:<!doctype svg[^>]*>\s*)?<svg[^>]*>/i
 
 function isSvg (svg) {
   // Remove DTD entities
@@ -49,8 +49,8 @@ function defaultKey (req, file, cb) {
 
 function autoContentType (req, file, cb) {
   file.stream.once('data', function (firstChunk) {
-    var type = fileType(firstChunk)
-    var mime = 'application/octet-stream' // default type
+    const type = fileType(firstChunk)
+    let mime = 'application/octet-stream' // default type
 
     // Make sure to check xml-extension for svg files.
     if ((!type || type.ext === 'xml') && isSvg(firstChunk.toString())) {
@@ -59,7 +59,7 @@ function autoContentType (req, file, cb) {
       mime = type.mime
     }
 
-    var outStream = new stream.PassThrough()
+    const outStream = new stream.PassThrough()
 
     outStream.write(firstChunk)
     file.stream.pipe(outStream)
@@ -100,8 +100,8 @@ function collect (storage, req, file, cb) {
         cacheControl: values[5],
         contentDisposition: values[6],
         storageClass: values[7],
-        contentType: contentType,
-        replacementStream: replacementStream,
+        contentType,
+        replacementStream,
         serverSideEncryption: values[8],
         sseKmsKeyId: values[9],
         contentEncoding: values[10]
@@ -371,9 +371,9 @@ S3Storage.prototype.directUpload = function (opts, file, cb) {
     params.ContentEncoding = opts.contentEncoding
   }
 
-  var upload = new Upload({
+  const upload = new Upload({
     client: this.s3,
-    params: params
+    params
   })
 
   upload.on('httpUploadProgress', function (ev) {
@@ -402,8 +402,8 @@ S3Storage.prototype.directUpload = function (opts, file, cb) {
 }
 
 S3Storage.prototype.transformUpload = function (opts, req, file, cb) {
-  var storage = this
-  var results = []
+  const storage = this
+  const results = []
   parallel(
     storage.getTransforms.map(function (transform) {
       return transform.key.bind(storage, req, file)
@@ -412,7 +412,7 @@ S3Storage.prototype.transformUpload = function (opts, req, file, cb) {
       if (err) return cb(err)
 
       keys.forEach((key, i) => {
-        var currentSize = 0
+        let currentSize = 0
         storage.getTransforms[i].transform(req, file, (err, piper) => {
           if (err) return cb(err)
 
@@ -429,9 +429,9 @@ S3Storage.prototype.transformUpload = function (opts, req, file, cb) {
             Body: opts.replacementStream || file.stream
           }
 
-          var upload = new Upload({
+          const upload = new Upload({
             client: this.s3,
-            params: params
+            params
           })
 
           upload.on('httpUploadProgress', function (ev) {

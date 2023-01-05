@@ -1,9 +1,9 @@
-var events = require('events')
+const events = require('events')
 
 function createMockS3 () {
   function send (opts, cb) {
-    var ee = new events.EventEmitter()
-    var buffer = opts['input']['Body']
+    const ee = new events.EventEmitter()
+    const buffer = opts.input.Body
     ee.emit('httpUploadProgress', { total: buffer.length })
     return Promise.resolve({
       Location: 'mock-location',
@@ -11,7 +11,7 @@ function createMockS3 () {
     })
   }
 
-  return { send: send, config: { endpoint: () => { return {hostname: 'localhost', protocol: 'https:'} } } }
+  return { send, config: { endpoint: () => { return { hostname: 'localhost', protocol: 'https:' } } } }
 }
 
 module.exports = createMockS3
