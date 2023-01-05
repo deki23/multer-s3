@@ -248,7 +248,7 @@ function S3Storage (opts) {
         break
       default:
         throw new TypeError(
-          'Expected opts.transform[].key to be unedefined, string or function'
+          'Expected opts.transform[].key to be undefined, string or function'
         )
     }
 
