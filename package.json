@@ -40,7 +40,7 @@
     "mocha": "^2.2.5",
     "multer": "^1.1.0",
     "on-finished": "^2.3.0",
-    "standard": "^5.4.1",
+    "standard": "^17.0.0",
     "xtend": "^4.0.1"
   },
   "typings": "./index.d.ts"
