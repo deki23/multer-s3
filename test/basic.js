@@ -41,7 +41,9 @@ function submitForm (multer, form, cb) {
     }
 
     multer(req, null, function (err) {
-      onFinished(req, function () { cb(err, req) })
+      onFinished(req, function () {
+        cb(err, req)
+      })
     })
   })
 }
@@ -67,7 +69,9 @@ describe('Multer S3', function () {
     var storage = multerS3({ s3: s3, bucket: 'test' })
     var upload = multer({ storage: storage })
     var parser = upload.single('image')
-    var image = fs.createReadStream(path.join(__dirname, 'files', 'ffffff.png'))
+    var image = fs.createReadStream(
+      path.join(__dirname, 'files', 'ffffff.png')
+    )
 
     form.append('name', 'Multer')
     form.append('image', image)
@@ -76,13 +80,12 @@ describe('Multer S3', function () {
       assert.ifError(err)
 
       assert.equal(req.body.name, 'Multer')
-
       assert.equal(req.file.fieldname, 'image')
       assert.equal(req.file.originalname, 'ffffff.png')
       assert.equal(req.file.size, 68)
       assert.equal(req.file.bucket, 'test')
       assert.equal(req.file.etag, 'mock-etag')
-      assert.equal(req.file.location, 'mock-location')
+      assert.equal(req.file.location, `https://test.localhost/${req.file.key}`)
 
       done()
     })
@@ -91,10 +94,16 @@ describe('Multer S3', function () {
   it('uploads file with AES256 server-side encryption', function (done) {
     var s3 = mockS3()
     var form = new FormData()
-    var storage = multerS3({ s3: s3, bucket: 'test', serverSideEncryption: 'AES256' })
+    var storage = multerS3({
+      s3: s3,
+      bucket: 'test',
+      serverSideEncryption: (req, file, callback) => callback(null, 'AES256')
+    })
     var upload = multer({ storage: storage })
     var parser = upload.single('image')
-    var image = fs.createReadStream(path.join(__dirname, 'files', 'ffffff.png'))
+    var image = fs.createReadStream(
+      path.join(__dirname, 'files', 'ffffff.png')
+    )
 
     form.append('name', 'Multer')
     form.append('image', image)
@@ -109,7 +118,7 @@ describe('Multer S3', function () {
       assert.equal(req.file.size, 68)
       assert.equal(req.file.bucket, 'test')
       assert.equal(req.file.etag, 'mock-etag')
-      assert.equal(req.file.location, 'mock-location')
+      assert.equal(req.file.location, `https://test.localhost/${req.file.key}`)
       assert.equal(req.file.serverSideEncryption, 'AES256')
 
       done()
@@ -119,10 +128,16 @@ describe('Multer S3', function () {
   it('uploads file with AWS KMS-managed server-side encryption', function (done) {
     var s3 = mockS3()
     var form = new FormData()
-    var storage = multerS3({ s3: s3, bucket: 'test', serverSideEncryption: 'aws:kms' })
+    var storage = multerS3({
+      s3: s3,
+      bucket: 'test',
+      serverSideEncryption: 'aws:kms'
+    })
     var upload = multer({ storage: storage })
     var parser = upload.single('image')
-    var image = fs.createReadStream(path.join(__dirname, 'files', 'ffffff.png'))
+    var image = fs.createReadStream(
+      path.join(__dirname, 'files', 'ffffff.png')
+    )
 
     form.append('name', 'Multer')
     form.append('image', image)
@@ -137,7 +152,7 @@ describe('Multer S3', function () {
       assert.equal(req.file.size, 68)
       assert.equal(req.file.bucket, 'test')
       assert.equal(req.file.etag, 'mock-etag')
-      assert.equal(req.file.location, 'mock-location')
+      assert.equal(req.file.location, `https://test.localhost/${req.file.key}`)
       assert.equal(req.file.serverSideEncryption, 'aws:kms')
 
       done()
@@ -147,10 +162,17 @@ describe('Multer S3', function () {
   it('uploads PNG file with correct content-type', function (done) {
     var s3 = mockS3()
     var form = new FormData()
-    var storage = multerS3({ s3: s3, bucket: 'test', serverSideEncryption: 'aws:kms', contentType: multerS3.AUTO_CONTENT_TYPE })
+    var storage = multerS3({
+      s3: s3,
+      bucket: 'test',
+      serverSideEncryption: 'aws:kms',
+      contentType: multerS3.AUTO_CONTENT_TYPE
+    })
     var upload = multer({ storage: storage })
     var parser = upload.single('image')
-    var image = fs.createReadStream(path.join(__dirname, 'files', 'ffffff.png'))
+    var image = fs.createReadStream(
+      path.join(__dirname, 'files', 'ffffff.png')
+    )
 
     form.append('name', 'Multer')
     form.append('image', image)
@@ -166,7 +188,7 @@ describe('Multer S3', function () {
       assert.equal(req.file.size, 68)
       assert.equal(req.file.bucket, 'test')
       assert.equal(req.file.etag, 'mock-etag')
-      assert.equal(req.file.location, 'mock-location')
+      assert.equal(req.file.location, `https://test.localhost/${req.file.key}`)
       assert.equal(req.file.serverSideEncryption, 'aws:kms')
 
       done()
@@ -195,7 +217,7 @@ describe('Multer S3', function () {
       assert.equal(req.file.size, 100)
       assert.equal(req.file.bucket, 'test')
       assert.equal(req.file.etag, 'mock-etag')
-      assert.equal(req.file.location, 'mock-location')
+      assert.equal(req.file.location, `https://test.localhost/${req.file.key}`)
       assert.equal(req.file.serverSideEncryption, 'aws:kms')
 
       done()
@@ -224,7 +246,7 @@ describe('Multer S3', function () {
       assert.equal(req.file.size, 285)
       assert.equal(req.file.bucket, 'test')
       assert.equal(req.file.etag, 'mock-etag')
-      assert.equal(req.file.location, 'mock-location')
+      assert.equal(req.file.location, `https://test.localhost/${req.file.key}`)
       assert.equal(req.file.serverSideEncryption, 'aws:kms')
 
       done()
@@ -256,7 +278,7 @@ describe('Multer S3', function () {
       assert.equal(req.file.size, 34574)
       assert.equal(req.file.bucket, 'test')
       assert.equal(req.file.etag, 'mock-etag')
-      assert.equal(req.file.location, 'mock-location')
+      assert.equal(req.file.location, `https://test.localhost/${req.file.key}`)
       assert.equal(req.file.serverSideEncryption, 'aws:kms')
 
       done()
@@ -284,9 +306,58 @@ describe('Multer S3', function () {
       assert.equal(req.file.size, 7)
       assert.equal(req.file.bucket, 'test')
       assert.equal(req.file.etag, 'mock-etag')
-      assert.equal(req.file.location, 'mock-location')
+      assert.equal(req.file.location, `https://test.localhost/${req.file.key}`)
       assert.equal(req.file.serverSideEncryption, 'aws:kms')
       assert.equal(req.file.contentEncoding, 'gzip')
+      done()
+    })
+  })
+
+  it('upload transformed files', function (done) {
+    var s3 = mockS3()
+    var form = new FormData()
+    var storage = multerS3({
+      s3: s3,
+      bucket: 'test',
+      shouldTransform: true,
+      serverSideEncryption: 'aws:kms',
+      contentType: multerS3.AUTO_CONTENT_TYPE,
+      transforms: [
+        {
+          key: 'test',
+          transform: function (req, file, cb) {
+            cb(null, new stream.PassThrough())
+          }
+        },
+        {
+          key: 'test2',
+          transform: function (req, file, cb) {
+            cb(null, new stream.PassThrough())
+          }
+        }
+      ]
+    })
+    var upload = multer({ storage: storage })
+    var parser = upload.single('image')
+    var image = fs.createReadStream(
+      path.join(__dirname, 'files', 'ffffff.png')
+    )
+
+    form.append('name', 'Multer')
+    form.append('image', image)
+
+    submitForm(parser, form, function (err, req) {
+      assert.ifError(err)
+
+      assert.equal(req.body.name, 'Multer')
+      assert.equal(req.file.fieldname, 'image')
+      assert.equal(req.file.originalname, 'ffffff.png')
+      assert.equal(req.file.transforms[0].size, 68)
+      assert.equal(req.file.transforms[0].bucket, 'test')
+      assert.equal(req.file.transforms[0].etag, 'mock-etag')
+      assert.equal(req.file.transforms[0].location, `https://test.localhost/test`)
+      assert.equal(req.file.transforms[1].location, 'https://test.localhost/test2')
+
       done()
     })
   })

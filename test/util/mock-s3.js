@@ -11,7 +11,7 @@ function createMockS3 () {
     })
   }
 
-  return { send: send }
+  return { send: send, config: { endpoint: () => { return {hostname: 'localhost', protocol: 'https:'} } } }
 }
 
 module.exports = createMockS3
