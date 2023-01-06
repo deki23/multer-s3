@@ -1,5 +1,5 @@
 {
-  "name": "multer-s3-transform3",
+  "name": "multer-s3-transform",
   "version": "3.0.1",
   "description": "Streaming multer storage engine for AWS S3",
   "main": "index.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deki23/multer-s3-transform3.git"
+    "url": "git+https://github.com/deki23/multer-s3.git"
   },
   "keywords": [
     "multer",
@@ -22,9 +22,9 @@
   "author": "badunk",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/deki23/multer-s3-transform3/issues"
+    "url": "https://github.com/deki23/multer-s3/issues"
   },
-  "homepage": "https://github.com/deki23/multer-s3-transform3#readme",
+  "homepage": "https://github.com/deki23/multer-s3#readme",
   "dependencies": {
     "@aws-sdk/lib-storage": "^3.46.0",
     "file-type": "^16.5.4",
