@@ -427,7 +427,7 @@ S3Storage.prototype.transformUpload = function (opts, req, file, cb) {
             StorageClass: opts.storageClass,
             ServerSideEncryption: opts.serverSideEncryption,
             SSEKMSKeyId: opts.sseKmsKeyId,
-            Body: opts.replacementStream || file.stream
+            Body: (opts.replacementStream || file.stream).pipe(piper)
           }
 
           const upload = new Upload({
